@@ -616,9 +616,9 @@ class Real3DCanExperience {
 
           if (w < 640) {
             targetX = 0;
-            targetY = 1.90;
+            targetY = 1.50;
             targetZ = 0.2;
-            targetScaleVal = 0.56;
+            targetScaleVal = 0.75;
           } else if (w < 960) {
             targetX = -1.35;
             targetY = 0;
