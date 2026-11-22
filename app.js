@@ -12,7 +12,7 @@ const CANS_DATA = [
     accentHex: 0xff2d55,
     glowColor: 'rgba(255, 45, 85, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Lichi Natural', 'Zero Sugar & Cal', '100% Vegano'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
     note: 'Elaborado con esencia botánica de lichi fresco. Carbonatación fina 2.5x más duradera.'
   },
   {
@@ -25,7 +25,7 @@ const CANS_DATA = [
     accentHex: 0xff7a00,
     glowColor: 'rgba(255, 122, 0, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Cáscara de Naranja', 'Zero Sugar & Cal', 'Sin Gluten'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
     note: 'Aceites esenciales de naranja prensada en frío. Sin colorantes ni saborizantes artificiales.'
   },
   {
@@ -38,7 +38,7 @@ const CANS_DATA = [
     accentHex: 0x9d4edd,
     glowColor: 'rgba(157, 78, 221, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Uva Kyoho', 'Zero Sugar & Cal', 'Antioxidante'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
     note: 'Extracto aromático de uva negra premium. Textura burbujeante aterciopelada al paladar.'
   },
   {
@@ -51,7 +51,7 @@ const CANS_DATA = [
     accentHex: 0xff6584,
     glowColor: 'rgba(255, 101, 132, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Melocotón Blanco', 'Zero Sugar & Cal', 'Bestseller'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
     note: 'Aroma delicado y floral. Endulzado naturalmente con eritritol botánico de índice glucémico 0.'
   }
 ];
@@ -419,8 +419,10 @@ class Real3DCanExperience {
         this.targetInspectRotX += deltaY * 0.007;
         this.targetInspectRotX = Math.max(-0.6, Math.min(0.8, this.targetInspectRotX));
       } else {
-        // Slide cans linearly from SIDE TO SIDE
-        this.targetScroll -= deltaX * 0.0038;
+        // Slide cans linearly from SIDE TO SIDE (adaptive mobile sensitivity)
+        const isMobile = window.innerWidth < 640;
+        const sens = isMobile ? 0.0075 : 0.0038;
+        this.targetScroll -= deltaX * sens;
       }
 
       this.lastPointerX = x;
@@ -452,9 +454,23 @@ class Real3DCanExperience {
         }
       } else {
         if (!this.isInspecting) {
-          // Snap horizontally to the closest can in linear track
-          const snapped = Math.round(this.targetScroll);
-          this.rotateToIndex(snapped);
+          // Responsive swipe/flick detection on mobile & desktop
+          const totalDeltaX = this.lastPointerX - this.pointerStartX;
+          const isMobile = window.innerWidth < 640;
+          const swipeThreshold = isMobile ? 32 : 60;
+
+          if (Math.abs(totalDeltaX) > swipeThreshold) {
+            this.sound.playWhoosh();
+            if (totalDeltaX < 0) {
+              this.next();
+            } else {
+              this.prev();
+            }
+          } else {
+            // Snap horizontally to the closest can in linear track
+            const snapped = Math.round(this.targetScroll);
+            this.rotateToIndex(snapped);
+          }
         }
       }
     };
@@ -466,6 +482,7 @@ class Real3DCanExperience {
     this.canvas.addEventListener('touchstart', onDown, { passive: true });
     window.addEventListener('touchmove', onMove, { passive: true });
     window.addEventListener('touchend', onUp);
+    window.addEventListener('touchcancel', onUp);
 
     // Buttons
     if (this.btnPrev) {
@@ -597,7 +614,9 @@ class Real3DCanExperience {
 
     // Smooth lerp of horizontal linear scroll
     if (!this.isInspecting) {
-      this.currentScroll += (this.targetScroll - this.currentScroll) * 0.12;
+      const isMobile = window.innerWidth < 640;
+      const scrollSpeed = isMobile ? 0.16 : 0.12;
+      this.currentScroll += (this.targetScroll - this.currentScroll) * scrollSpeed;
     }
 
     this.canObjects.forEach((can, i) => {
@@ -616,9 +635,9 @@ class Real3DCanExperience {
 
           if (w < 640) {
             targetX = 0;
-            targetY = 1.50;
+            targetY = 1.40;
             targetZ = 0.2;
-            targetScaleVal = 0.75;
+            targetScaleVal = 0.80;
           } else if (w < 960) {
             targetX = -1.35;
             targetY = 0;
