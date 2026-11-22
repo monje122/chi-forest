@@ -12,7 +12,7 @@ const CANS_DATA = [
     accentHex: 0xff2d55,
     glowColor: 'rgba(255, 45, 85, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Lichi Natural', 'Zero Sugar & Cal', '100% Vegano'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
     note: 'Elaborado con esencia botánica de lichi fresco. Carbonatación fina 2.5x más duradera.'
   },
   {
@@ -25,7 +25,7 @@ const CANS_DATA = [
     accentHex: 0xff7a00,
     glowColor: 'rgba(255, 122, 0, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Cáscara de Naranja', 'Zero Sugar & Cal', 'Sin Gluten'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
     note: 'Aceites esenciales de naranja prensada en frío. Sin colorantes ni saborizantes artificiales.'
   },
   {
@@ -38,7 +38,7 @@ const CANS_DATA = [
     accentHex: 0x9d4edd,
     glowColor: 'rgba(157, 78, 221, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Uva Kyoho', 'Zero Sugar & Cal', 'Antioxidante'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
     note: 'Extracto aromático de uva negra premium. Textura burbujeante aterciopelada al paladar.'
   },
   {
@@ -51,7 +51,7 @@ const CANS_DATA = [
     accentHex: 0xff6584,
     glowColor: 'rgba(255, 101, 132, 0.4)',
     tags: ['330 mL (11.16 fl oz)', 'Melocotón Blanco', 'Zero Sugar & Cal', 'Bestseller'],
-    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '0mg' },
+    nutrition: { cal: '0', sugar: '0g', fat: '0g', sodium: '1 mg' },
     note: 'Aroma delicado y floral. Endulzado naturalmente con eritritol botánico de índice glucémico 0.'
   }
 ];
@@ -635,7 +635,7 @@ class Real3DCanExperience {
 
           if (w < 640) {
             targetX = 0;
-            targetY = 1.50;
+            targetY = 1.55;
             targetZ = 0.2;
             targetScaleVal = 0.80;
           } else if (w < 960) {
