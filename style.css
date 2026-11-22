@@ -1,0 +1,774 @@
+:root {
+  --bg-color: #07080b;
+  --text-main: #f5f6f8;
+  --text-muted: #8e95a5;
+  --accent-glow: rgba(255, 45, 85, 0.35);
+  --accent-primary: #ff2d55;
+  --card-bg: rgba(15, 17, 23, 0.72);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Dynamic Ambient Glow */
+.ambient-glow {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vh;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, rgba(7, 8, 11, 0) 70%);
+  pointer-events: none;
+  filter: blur(85px);
+  z-index: 0;
+  transition: background 0.8s ease;
+}
+
+/* Header */
+header {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 44px;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 40%, #999999 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-tag {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  color: #d1d5db;
+  text-transform: uppercase;
+}
+
+/* WhatsApp Distributor CTA Button */
+.btn-distributor {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  padding: 10px 22px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.45), 0 0 25px rgba(18, 140, 126, 0.25);
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, background 0.25s;
+  animation: pulseDistributor 3s infinite ease-in-out;
+}
+
+.btn-distributor:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 28px rgba(37, 211, 102, 0.65), 0 0 35px rgba(37, 211, 102, 0.45);
+  background: linear-gradient(135deg, #2ae26f 0%, #159b8c 100%);
+  color: #ffffff;
+}
+
+.btn-distributor:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.whatsapp-icon {
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+@keyframes pulseDistributor {
+  0% {
+    box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4), 0 0 15px rgba(18, 140, 126, 0.2);
+  }
+  50% {
+    box-shadow: 0 6px 26px rgba(37, 211, 102, 0.7), 0 0 32px rgba(37, 211, 102, 0.45);
+  }
+  100% {
+    box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4), 0 0 15px rgba(18, 140, 126, 0.2);
+  }
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+/* Stage / Viewport */
+.stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* WebGL Canvas */
+#webglCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+  z-index: 5;
+  cursor: grab;
+  touch-action: none;
+}
+
+#webglCanvas.grabbing {
+  cursor: grabbing;
+}
+
+/* Inspection Overlay (Split View: 3D Can on Left, Info Card on Right) */
+.inspection-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4vw 0 3vw;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s;
+}
+
+.inspection-hud.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 3D Can interaction hint on the left */
+.can-hint-overlay {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  padding-bottom: 70px;
+  pointer-events: none;
+}
+
+.hint-pill-3d {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(18, 19, 24, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 10px 18px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  animation: pulseHint 3s infinite alternate;
+}
+
+.hint-pill-3d svg {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+@keyframes pulseHint {
+  0% { transform: translateY(0); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+  100% { transform: translateY(-4px); box-shadow: 0 14px 30px var(--accent-glow); }
+}
+
+/* Unified Information Showcase Card on the Right */
+.hud-info-card {
+  width: 440px;
+  max-width: 40vw;
+  max-height: 82vh;
+  overflow-y: auto;
+  background: rgba(14, 15, 20, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px var(--accent-glow);
+  pointer-events: auto;
+  transform: translateX(50px);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.inspection-hud.active .hud-info-card {
+  transform: translateX(0);
+}
+
+.hud-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hud-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+
+.hud-close-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.hud-close-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+}
+
+.hud-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.hud-description {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.hud-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+}
+
+/* Nutrition Section */
+.nutrition-section {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nutrition-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.nutrition-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--accent-primary);
+}
+
+.nutrition-section-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.nutrition-item {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nutrition-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.nutrition-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* Note box */
+.hud-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border-left: 3px solid var(--accent-primary);
+}
+
+.hud-note-sparkle {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.hud-note-text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+.hud-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-distributor-card {
+  width: 100%;
+  justify-content: center;
+  padding: 13px 22px;
+  font-size: 14px;
+}
+
+.hud-btn-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  width: 100%;
+  margin-top: 0;
+}
+
+.hud-btn-close:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Bottom Controls */
+footer {
+  position: relative;
+  z-index: 20;
+  padding: 20px 44px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+body.is-inspecting footer {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+.carousel-indicators {
+  display: flex;
+  gap: 10px;
+}
+
+.indicator-dot {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background 0.3s, width 0.3s;
+}
+
+.indicator-dot.active {
+  background: #ffffff;
+  width: 48px;
+}
+
+.controls-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.06);
+}
+
+.instructions-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.keyboard-badge {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+/* ==========================================================================
+   Responsive Architecture (PC, iPhone & Android)
+   ========================================================================== */
+
+/* 1. Header & Navigation Breakpoints */
+@media (max-width: 960px) {
+  header {
+    padding: 16px 24px;
+  }
+  footer {
+    padding: 16px 24px 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    padding: 12px 18px;
+  }
+  .brand-logo {
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+  .brand-tag {
+    display: none;
+  }
+  .btn-distributor {
+    padding: 7px 13px;
+    font-size: 11.5px;
+    gap: 6px;
+  }
+  .btn-distributor svg {
+    width: 16px;
+    height: 16px;
+  }
+  .header-status {
+    display: none;
+  }
+  
+  footer {
+    padding: 12px 18px max(16px, env(safe-area-inset-bottom));
+  }
+  .instructions-hint {
+    display: none;
+  }
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* 2. Split View Inspection Breakpoints */
+/* Desktop / PC (>= 960px): Can on Left (x = -1.75), Card on Right */
+@media (min-width: 960px) {
+  .inspection-hud {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5vw 0 4vw;
+  }
+  .hud-info-card {
+    width: 440px;
+    max-width: 40vw;
+    max-height: 85vh;
+  }
+}
+
+/* Tablets / Medium Viewports (641px - 959px): Can on Left (x = -1.35), Card on Right */
+@media (min-width: 641px) and (max-width: 959px) {
+  .inspection-hud {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3vw;
+  }
+  .hud-info-card {
+    width: 380px;
+    max-width: 46vw;
+    max-height: 85vh;
+    padding: 22px;
+    gap: 12px;
+  }
+  .hud-title {
+    font-size: 24px;
+  }
+}
+
+/* Mobile Phones (iPhone & Android <= 640px): Can on Top (y = 1.42), Card on Bottom */
+@media (max-width: 640px) {
+  .header-status {
+    display: none;
+  }
+
+  .inspection-hud {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 10px max(10px, env(safe-area-inset-bottom));
+  }
+  
+  .can-hint-overlay {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 58px);
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    padding-bottom: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+  
+  .hint-pill-3d {
+    font-size: 11px;
+    padding: 6px 14px;
+    background: rgba(14, 15, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .hud-info-card {
+    width: 100%;
+    max-width: 100%;
+    max-height: 35vh;
+    border-radius: 20px 20px 14px 14px;
+    padding: 12px 16px 14px;
+    gap: 8px;
+    transform: translateY(40px);
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.75), 0 0 30px var(--accent-glow);
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .inspection-hud.active .hud-info-card {
+    transform: translateY(0);
+  }
+  
+  .hud-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+  
+  .hud-title {
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  
+  .hud-description {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  
+  .hud-tags {
+    gap: 4px;
+  }
+  
+  .tag-badge {
+    padding: 3px 7px;
+    font-size: 9.5px;
+  }
+  
+  .nutrition-section {
+    padding: 7px 10px;
+    gap: 4px;
+  }
+  
+  .nutrition-section-title {
+    font-size: 9px;
+  }
+  
+  .nutrition-section-sub {
+    font-size: 8.5px;
+  }
+  
+  .nutrition-val {
+    font-size: 13.5px;
+  }
+  
+  .nutrition-label {
+    font-size: 8.5px;
+  }
+
+  .hud-note-card {
+    padding: 6px 10px;
+    gap: 6px;
+    font-size: 10px;
+  }
+
+  .hud-actions-group {
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .btn-distributor-card {
+    padding: 8px 12px;
+    font-size: 11.5px;
+  }
+  
+  .hud-btn-close {
+    padding: 8px 12px;
+    font-size: 11.5px;
+  }
+}
+
+/* Compact phones (e.g. 360x689, iPhone SE 375x667) */
+@media (max-height: 720px) and (max-width: 640px) {
+  .hud-info-card {
+    max-height: 32vh;
+    padding: 10px 14px 12px;
+    gap: 6px;
+  }
+  .hud-title {
+    font-size: 16px;
+  }
+  .hud-description {
+    font-size: 10.5px;
+    line-height: 1.3;
+  }
+}
+
+/* Landscape Phone Support (iPhone / Android landscape) */
+@media (max-height: 540px) and (orientation: landscape) {
+  header {
+    padding: 8px 20px;
+  }
+  footer {
+    padding: 6px 20px max(6px, env(safe-area-inset-bottom));
+  }
+  .inspection-hud {
+    flex-direction: row;
+    padding: 0 20px;
+  }
+  .hud-info-card {
+    width: 360px;
+    max-height: 88vh;
+    padding: 16px;
+    gap: 10px;
+  }
+  .hud-title {
+    font-size: 20px;
+  }
+  .can-hint-overlay {
+    display: none;
+  }
+}
